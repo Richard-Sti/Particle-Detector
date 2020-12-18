@@ -105,5 +105,5 @@ class Detector(object):
                   'y': event['y0'] + event['vy'] * dt,}
         # Get the pixel IDs
         data = self.coordinates2pixelID(coords)
-        data.update({'t': event['t']+ dt, 'z': self.zdist})
+        data.update({'t': event['t'] + dt, 'z': self.zdist})
         return data
