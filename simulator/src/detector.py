@@ -4,7 +4,7 @@ import numpy
 
 class Detector(object):
     r"""
-    Lalalalalala.
+    TO DO: Add documentation
     """
     _Npixs = None
     _bnds = None
@@ -36,6 +36,7 @@ class Detector(object):
     def bnds(self, boundaries):
         """Sets ``bnds``. Checks that both ``x`` and ``y`` bounds
         are present."""
+        boundaries = boundaries.copy()
         if not isinstance(boundaries, dict):
             raise ValueError("``boundaries`` must be a dictionary.")
         xbnd = boundaries.pop('x', None)
@@ -104,5 +105,5 @@ class Detector(object):
                   'y': event['y0'] + event['vy'] * dt,}
         # Get the pixel IDs
         data = self.coordinates2pixelID(coords)
-        data.update({'t': event['t']+ dt})
+        data.update({'t': event['t']+ dt, 'z': self.zdist})
         return data
