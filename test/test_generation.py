@@ -3,10 +3,6 @@ import numpy
 
 import pytest
 
-# Later can delete this
-import sys
-sys.path.append('../')
-
 from simulator import Generator
 
 THETA_MAX = 10
