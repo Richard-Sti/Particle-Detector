@@ -21,7 +21,7 @@ class Generator(object):
     _theta_max = None
     _deg = None
 
-    def __init__(self, theta_max, momentum_distribution=None, deg=True):
+    def __init__(self, theta_max, momentum_distribution=None, deg=True)
         self._deg = deg
         self.theta_max = theta_max
         # Store the momentum dsitribution.. generalise this later
