@@ -3,6 +3,7 @@ import numpy
 
 
 class Generator(object):
+
     r"""A particle generator. Randomly generates a particle within some
     cone with a given momentum distribution.
 
@@ -16,16 +17,21 @@ class Generator(object):
         Must be from `scipy.stats.`
     deg : bool
         Whether the input ``theta_max`` is in degrees.
+    seed : int
+        Random seed for reproducibility.
     """
 
     _theta_max = None
     _deg = None
 
-    def __init__(self, theta_max, momentum_distribution=None, deg=True):
+    def __init__(self, theta_max, momentum_distribution=None, deg=True,
+                 seed=2021):
         self._deg = deg
         self.theta_max = theta_max
         # Store the momentum dsitribution.. generalise this later
         self.momentum_distribution = None
+        # Set the random seed
+        numpy.random.seed(seed)
 
     @property
     def theta_max(self):
@@ -50,8 +56,7 @@ class Generator(object):
         return self._deg
 
     def generate(self, N=1):
-        """Generates ``N`` random flight vectors with momentum distribution
-        drawn from `` ```"""
+        """Generates ``N`` random flight vectors with a given momentum."""
         cdf = numpy.random.uniform(0, 1, N)
 
         theta = numpy.arccos(1 - cdf * (1 - numpy.cos(self._theta_max)))
