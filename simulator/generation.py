@@ -16,6 +16,8 @@ class Generator(object):
         Must be from `scipy.stats.`
     deg : bool
         Whether the input ``theta_max`` is in degrees.
+    seed : int
+        Random seed for reproducibility.
     """
 
     _theta_max = None
