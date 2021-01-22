@@ -3,6 +3,7 @@ import numpy
 
 
 class Generator(object):
+
     r"""A particle generator. Randomly generates a particle within some
     cone with a given momentum distribution.
 
@@ -55,8 +56,10 @@ class Generator(object):
         return self._deg
 
     def generate(self, N=1):
-        """Generates ``N`` random flight vectors with momentum distribution
-        drawn from `` ```"""
+        """
+        Generates ``N`` random flight vectors with a prescribed momentum
+        distribution.
+        """
         cdf = numpy.random.uniform(0, 1, N)
 
         theta = numpy.arccos(1 - cdf * (1 - numpy.cos(self._theta_max)))
