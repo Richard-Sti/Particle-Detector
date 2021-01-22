@@ -56,10 +56,7 @@ class Generator(object):
         return self._deg
 
     def generate(self, N=1):
-        """
-        Generates ``N`` random flight vectors with a prescribed momentum
-        distribution.
-        """
+        """Generates ``N`` random flight vectors with a given momentum."""
         cdf = numpy.random.uniform(0, 1, N)
 
         theta = numpy.arccos(1 - cdf * (1 - numpy.cos(self._theta_max)))
