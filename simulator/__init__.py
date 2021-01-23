@@ -2,5 +2,5 @@
 __version__ = "0.1.0"
 __author__ = "Richard Stiskalek"
 
-from .generation import Generator
+from .generation import (PoissonSource, TruncatedGaussian)
 from .detector import Detector

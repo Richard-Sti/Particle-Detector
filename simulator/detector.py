@@ -3,8 +3,7 @@ import numpy
 
 
 class DetectorPlate:
-    r"""
-    A detector plate to be installed in the detector.
+    r"""A detector plate to be installed in the detector.
 
     Parameters
     ----------
@@ -150,7 +149,7 @@ class DetectorPlate:
         xf = numpy.array([_xf[p] for p in ('x', 'y')]).reshape(-1, 1)
         xf_rot = numpy.matmul(self._rotmat, xf)
 
-        out = {p: xf_rot[i] for i, p in enumerate(['x', 'y'])}
+        out = {p: float(xf_rot[i]) for i, p in enumerate(['x', 'y'])}
         out.update({'z': self.z, 't': event['t'] + dt})
         return out
 
