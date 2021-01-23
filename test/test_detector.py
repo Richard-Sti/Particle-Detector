@@ -24,7 +24,7 @@ def test_plates_positions(zs):
     out = detector.evaluate_events(events)
 
     for i in range(NEVENTS):
-        for j in range(len(zs)):
+        for j, z in enumerate(zs):
             # Check the z-coordinate
             assert out[i][j]['z'] == zs[j]
             # Check the correct thigns are stored
