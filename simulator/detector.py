@@ -2,18 +2,35 @@
 import numpy
 
 
-class Detector(object):
+class DetectorPlate:
     r"""
-    TO DO: Add documentation
-    """
-    _Npixs = None
-    _bnds = None
-    _zdist = None
+    A detector plate to be installed in the detector.
 
-    def __init__(self, boundaries, Npixs, zdist):
-        self.bnds = boundaries
+    Parameters
+    ----------
+    bounds : dict
+        Plate edges along  the x- and y-axis. Assumes detector plane spans
+        the so-defined rectangle in the x and y plane.
+        Example: ``{'x': (-10., 10.), 'y': (-2.0, 7.5)}``
+    Npixs : int
+        Total number of pixels on this detector plate.
+    z : float
+        Z-coordinate of the detector plate.
+    phi : float (optional)
+        Angle by which the detector plate is rotated along the z-axis.
+    """
+
+    def __init__(self, bounds, Npixs, z, phi):
+        self._Npixs = None
+        self._bnds = None
+        self._z = None
+        self._phi = None
+
+        self.bnds = bounds
         self.Npixs = Npixs
-        self.zdist = zdist
+        self.z = z
+        # TO DO: implement this
+        self.phi = phi
 
     @property
     def Npixs(self):
@@ -52,16 +69,16 @@ class Detector(object):
             self._bnds[par] = sorted(bnd)
 
     @property
-    def zdist(self):
+    def z(self):
         """Returns the detector z coordinate."""
-        return self._zdist
+        return self._z
 
-    @zdist.setter
-    def zdist(self, zdist):
-        """Sets ``zdist``."""
-        if not zdist > 0:
-            raise ValueError("``zdist`` must be positive.")
-        self._zdist = zdist
+    @z.setter
+    def z(self, z):
+        """Sets ``z``."""
+        if not z > 0:
+            raise ValueError("``z`` must be positive.")
+        self._z = z
 
     def pixelID2coordinates(self, IDs):
         """
@@ -76,7 +93,7 @@ class Detector(object):
         ybnd = self.bnds['y']
         return {'x': (xbnd[1] - xbnd[0]) / self.Npixs * (i + 0.5) + xbnd[0],
                 'y': (ybnd[1] - ybnd[0]) / self.Npixs * (j + 0.5) + ybnd[0],
-                'z': self.zdist}
+                'z': self.z}
 
     def coordinates2pixelID(self, coords):
         """
@@ -99,11 +116,44 @@ class Detector(object):
         Evaluates the collision with a simulated event. Returns the ID of
         a pixel that is hit and the time.
         """
-        dt = (self.zdist - event['z0']) / event['vz']
+        dt = (self.z - event['z0']) / event['vz']
         # Cartesian coordinates
         coords = {'x': event['x0'] + event['vx'] * dt,
                   'y': event['y0'] + event['vy'] * dt,}
         # Get the pixel IDs
-        data = self.coordinates2pixelID(coords)
-        data.update({'t': event['t'] + dt, 'z': self.zdist})
+        pixels = self.coordinates2pixelID(coords)
+        # Get the pixel centres Cartesian coordinates
+        data = self.pixelID2coordinates(pixels)
+        # Append the interaction time
+        data.update({'t': event['t'] + dt})
         return data
+
+
+class Detector:
+    r"""
+    A simple particle detector consisting of several plates.
+
+    Parameters
+    ----------
+    plates : list of dicts
+        A list containing the individual detector planes' parameters.
+        For more information see :py:class:`DetectorPlate`
+
+    """
+    def __init__(self, plates):
+        self._plates = None
+        self.plates = [DetectorPlate(**plate) for plate in plates]
+
+    def evaluate_events(self, events):
+        """
+        Evaluates the events. Returns a list of list: ``out[i, j]``
+        where the ``i`` refers to the event and ``j`` refers to the detector
+        plate.
+        """
+        out = [None] * len(events)
+        for i, event in enumerate(events):
+            data = [None] * len(self.plates)
+            for j, plate in enumerate(self.plates):
+                data[j] = plate.evaluate_collision(event)
+            out[i] = data
+        return out
