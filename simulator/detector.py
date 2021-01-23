@@ -17,20 +17,26 @@ class DetectorPlate:
     z : float
         Z-coordinate of the detector plate.
     phi : float (optional)
-        Angle by which the detector plate is rotated along the z-axis.
+        Angle (in degrees) by which the detector plate is rotated along
+        the z-axis.
     """
 
-    def __init__(self, bounds, Npixs, z, phi):
+    def __init__(self, bounds, Npixs, z, phi=0):
         self._Npixs = None
         self._bnds = None
         self._z = None
         self._phi = None
-
+        # Store the arguments
         self.bnds = bounds
         self.Npixs = Npixs
         self.z = z
-        # TO DO: implement this
         self.phi = phi
+        # Calculate the rotation matrix
+        phi = numpy.deg2rad(self.phi)
+        sphi = numpy.sin(phi)
+        cphi = numpy.cos(phi)
+        self._rotmat = numpy.array([[cphi, -sphi],
+                                    [sphi, cphi]])
 
     @property
     def Npixs(self):
@@ -80,6 +86,18 @@ class DetectorPlate:
             raise ValueError("``z`` must be positive.")
         self._z = z
 
+    @property
+    def phi(self):
+        """Returns the angle by which the detector plate is rotated."""
+        return self._phi
+
+    @phi.setter
+    def phi(self, phi):
+        """Sets ``phi``."""
+        if not isinstance(phi, (float, int)):
+            raise ValueError("``phi`` must be a float.")
+        self._phi = phi
+
     def pixelID2coordinates(self, IDs):
         """
         Returns the Cartesian coordinates ``i``-th horizontal and ``j``-th
@@ -117,16 +135,24 @@ class DetectorPlate:
         a pixel that is hit and the time.
         """
         dt = (self.z - event['z0']) / event['vz']
-        # Cartesian coordinates
-        coords = {'x': event['x0'] + event['vx'] * dt,
-                  'y': event['y0'] + event['vy'] * dt,}
+        # Intersection point between the particle path and detector plane
+        x0 = numpy.array([event['x0'] + event['vx'] * dt,
+                          event['y0'] + event['vy'] * dt]).reshape(-1, 1)
+        # Rotate the intersection so that detector eges || axes
+        # The first rotation is with the inverse matrix because instead of
+        # rotating the axes we wish to rotate the point
+        x0_rot = numpy.matmul(self._rotmat.T, x0)
         # Get the pixel IDs
-        pixels = self.coordinates2pixelID(coords)
+        pixels = self.coordinates2pixelID({p: x0_rot[i]
+                                           for i, p in enumerate(['x', 'y'])})
         # Get the pixel centres Cartesian coordinates
-        data = self.pixelID2coordinates(pixels)
-        # Append the interaction time
-        data.update({'t': event['t'] + dt})
-        return data
+        _xf = self.pixelID2coordinates(pixels)
+        xf = numpy.array([_xf[p] for p in ('x', 'y')]).reshape(-1, 1)
+        xf_rot = numpy.matmul(self._rotmat, xf)
+
+        out = {p: xf_rot[i] for i, p in enumerate(['x', 'y'])}
+        out.update({'z': self.z, 't': event['t'] + dt})
+        return out
 
 
 class Detector:
