@@ -10,7 +10,7 @@ PLATE = {'bounds': {'x': (-10, 10), 'y': (-10, 10)},
          'phi': 1}
 NEVENTS = 100
 
-
+@pytest.mark.parametrize('zs', [[10], [12, 23], [23, 25, 30]])
 def test_plates_positions(zs):
     """Tests whether the detector returns the correct z-coordinate."""
     # Setup the generator
