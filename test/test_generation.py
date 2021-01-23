@@ -43,15 +43,16 @@ def test_event_outputs(t):
         assert all(p in test_params for p in event.keys())
         assert all(event[p] is not None for p in event.keys())
 
+
 @pytest.mark.parametrize('mu', [0.5, 1, 30])
 @pytest.mark.parametrize('std', [0.3, 1])
 def test_momentum_mean(mu, std):
     """Tests the mean of the momentum distribution."""
     dist = TruncatedGaussian(mu, std)
-    source = PoissonSource(THETA_MAX, rate=100)
+    source = PoissonSource(THETA_MAX, momentum_distribution=dist, rate=100)
     events = source.observe(100)
     x = [None] * len(events)
     for i, event in enumerate(events):
         x[i] = sum([event[p]**2 for p in ['vx', 'vy', 'vz']])**0.5
     # Let's go for a absolute relatively low tolerance..
-    assert numpy.isclose(numpy.median(x), 1, atol=1e-1)
+    assert numpy.isclose(numpy.mean(x), dist.dist.stats('m'), atol=1e-1)
