@@ -36,7 +36,7 @@ class DetectorPlate:
         sphi = numpy.sin(phi)
         cphi = numpy.cos(phi)
         self._rotmat = numpy.array([[cphi, -sphi],
-                                 [sphi, cphi]])
+                                    [sphi, cphi]])
 
     @property
     def Npixs(self):
@@ -137,7 +137,7 @@ class DetectorPlate:
         dt = (self.z - event['z0']) / event['vz']
         # Intersection point between the particle path and detector plane
         x0 = numpy.array([event['x0'] + event['vx'] * dt,
-                              event['y0'] + event['vy'] * dt]).reshape(-1, 1)
+                          event['y0'] + event['vy'] * dt]).reshape(-1, 1)
         # Rotate the intersection so that detector eges || axes
         # The first rotation is with the inverse matrix because instead of
         # rotating the axes we wish to rotate the point
@@ -151,8 +151,7 @@ class DetectorPlate:
         xf_rot = numpy.matmul(self._rotmat, xf)
 
         out = {p: xf_rot[i] for i, p in enumerate(['x', 'y'])}
-        out.update({'z': self.z,
-                    't': event['t'] + dt })
+        out.update({'z': self.z, 't': event['t'] + dt})
         return out
 
 
