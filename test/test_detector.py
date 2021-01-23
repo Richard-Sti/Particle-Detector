@@ -1,5 +1,4 @@
 """Unit tests for the detector."""
-import numpy
 import pytest
 
 from simulator import (Generator, Detector)
@@ -10,6 +9,7 @@ PLATE = {'bounds': {'x': (-10, 10), 'y': (-10, 10)},
          'phi': 1}
 NEVENTS = 100
 
+
 @pytest.mark.parametrize('zs', [[10], [12, 23], [23, 25, 30]])
 def test_plates_positions(zs):
     """Tests whether the detector returns the correct z-coordinate."""
@@ -18,10 +18,8 @@ def test_plates_positions(zs):
     events = generator.generate(NEVENTS)
     # Setup the detector
     plates = [PLATE.copy() for i in range(len(zs))]
-    for i in range(len(zs)):
-        plates[i]['z'] = zs[i]
-    print('Plates')
-    print(plates)
+    for i, z in enumerate(zs):
+        plates[i]['z'] = z
     detector = Detector(plates)
     out = detector.evaluate_events(events)
 
