@@ -1,7 +1,14 @@
 """Particle generation script."""
 import numpy
 
-from scipy.stats import truncnorm
+from scipy.stats import (truncnorm, multivariate_normal)
+
+# TASK:
+#    We now learned that the property of the particle source are different than
+#    expected: The particle flux is not uniform. When measured in a plane
+#    perpendicular to the nominal flight direction in a distance of 10 cm,
+#    we get a normal distribution centered at the nominal flight axis with the
+#    covariance matrix
 
 
 class PoissonSource:
@@ -17,6 +24,9 @@ class PoissonSource:
         truncated positive Gaussian with mean at 1 and std of 0.5.
     rate : float (optional)
         The source's emission rate.
+    cov : numpy.ndarray (optional)
+        The anisotropic source's flux covariance at z=10 plane. By default
+        assumes (spherically) uniformly distributed flux.
     deg : bool (optional)
         Whether the input ``theta_max`` is in degrees.
     seed : int (optional)
@@ -24,13 +34,15 @@ class PoissonSource:
     """
 
     def __init__(self, theta_max, momentum_distribution=None, rate=1,
-                 deg=True, seed=2021):
+                 cov=None, deg=True, seed=2021):
         self._theta_max = None
         self._rate = None
+        self._cov = None
         self._deg = deg
 
         self.theta_max = theta_max
         self.rate = rate
+        self.cov = cov
 
         if momentum_distribution is None:
             self.momentum_distribution = TruncatedGaussian(mu=1, std=0.5)
@@ -42,6 +54,8 @@ class PoissonSource:
         self._dt = 1e-5
         # Internal source time
         self._clock = 0
+        # Anisotropic multivariate Gaussian flux. Covariance at z=10 plane
+        self._z = 10
 
     @property
     def theta_max(self):
@@ -77,6 +91,22 @@ class PoissonSource:
             raise ValueError("``rate`` must be a float.")
         self._rate = rate
 
+    @property
+    def cov(self):
+        """Returns the anisotropic flux covariance."""
+        return self._cov
+
+    @cov.setter
+    def cov(self, cov):
+        """Sets ``cov``."""
+        if cov is None:
+            return
+        if not isinstance(cov, numpy.ndarray):
+            cov = numpy.array(cov)
+        if cov.shape != (2, 2):
+            raise ValueError("Covariance shape must be (2, 2).")
+        self._cov = cov
+
     def _event_times(self, T):
         """
         Returns times when the source emits a particle. Assumes Poisson
@@ -91,7 +121,23 @@ class PoissonSource:
         # Times when an event was emitted
         return self._clock + numpy.where(x > prob0)[0] * self._dt
 
-    def _sample_sphere(self, N):
+    def _sample_anisotropic_flux(self, N, magnitude):
+        """
+        Returns points sampled from a multivariate Gaussian distribution
+        in z=10 plane whose covariance is specified by ``self.cov``.
+        """
+        points = multivariate_normal(mean=[0, 0], cov=self.cov).rvs(size=N)
+        # Append the z coordinate
+        z = numpy.ones((N, 1)) * self._z
+        samples = numpy.hstack([points, z])
+        # Normalise the samples
+        norm = numpy.linalg.norm(samples, axis=1)
+        # Could be vectorised but.. yolo
+        for i in range(N):
+            samples[i] *= magnitude[i] / norm[i]
+        return samples
+
+    def _sample_sphere(self, N, magnitude):
         """
         Returns uniformly distributed points on a 2-sphere within radius
         ``self.theta_max`` of the north pole.
@@ -102,11 +148,14 @@ class PoissonSource:
         theta = numpy.arccos(1 - cdf * (1 - numpy.cos(self._theta_max)))
         # These are uniformly distributed
         phi = numpy.random.uniform(0, 2*numpy.pi, N)
-        return theta, phi
+        # Convert to Cartesians
+        x, y, z = self._spherical2cartesian(magnitude, theta, phi)
+        samples = numpy.vstack([x, y, z]).T
+        return samples
 
     @staticmethod
     def _spherical2cartesian(r, theta, phi):
-        """Converts spherical coordinates to Cartesian."""
+        """Converts spherical unit coordinates to Cartesian."""
         stheta = numpy.sin(theta)
         x = r * stheta * numpy.cos(phi)
         y = r * stheta * numpy.sin(phi)
@@ -117,14 +166,17 @@ class PoissonSource:
         """Observe the source for period ``T``."""
         t = self._event_times(T)
         N = t.size
-        theta, phi = self._sample_sphere(N)
-        momentum = self.momentum_distribution.dist.rvs(N)
-        # Calling these velocities assume m=1 and no SR but fine for now
-        vx, vy, vz = self._spherical2cartesian(momentum, theta, phi)
-
+        magnitude = self.momentum_distribution.dist.rvs(N)
+        # Sample the unit vectors
+        if self.cov is None:
+            samples = self._sample_sphere(N, magnitude)
+        else:
+            samples = self._sample_anisotropic_flux(N, magnitude)
         # Bump up the internal clock
         self._clock += T
-        return [{'vx': vx[i], 'vy': vy[i], 'vz': vz[i], 't': t[i],
+        # Calling these velocities assume m=1 and no SR but fine for now
+        return [{'vx': samples[i, 0], 'vy': samples[i, 1],
+                 'vz': samples[i, 2], 't': t[i],
                  'x0': 0.0, 'y0': 0.0, 'z0': 0.0} for i in range(N)]
 
 
