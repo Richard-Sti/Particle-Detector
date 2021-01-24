@@ -3,13 +3,6 @@ import numpy
 
 from scipy.stats import (truncnorm, multivariate_normal)
 
-# TASK:
-#    We now learned that the property of the particle source are different than
-#    expected: The particle flux is not uniform. When measured in a plane
-#    perpendicular to the nominal flight direction in a distance of 10 cm,
-#    we get a normal distribution centered at the nominal flight axis with the
-#    covariance matrix
-
 
 class PoissonSource:
     r"""A Poission source. Generates events in Poisson-distributed time steps.
