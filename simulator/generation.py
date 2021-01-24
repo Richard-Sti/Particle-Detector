@@ -148,7 +148,7 @@ class PoissonSource:
 
     @staticmethod
     def _spherical2cartesian(r, theta, phi):
-        """Converts spherical unit coordinates to Cartesian."""
+        """Converts spherical coordinates to Cartesian."""
         stheta = numpy.sin(theta)
         x = r * stheta * numpy.cos(phi)
         y = r * stheta * numpy.sin(phi)
