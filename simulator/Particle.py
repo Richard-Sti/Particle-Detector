@@ -20,6 +20,7 @@ class Particle(object):
 
     @dataset.setter
     def dataset(self, dataset):
+        """checks if input is list that contains dictionaries"""
         for data_entry_number in range(len(dataset)+1):
             if not isinstance(dataset[data_entry_number], dict):
                 raise ValueError("``dataset entries`` must be dictionaries.")
@@ -30,7 +31,7 @@ class Particle(object):
         particle_attributes = self._dataset[particle_number-1]
         return particle_attributes
     
-    def give_multiple_particles(self, number_begin, number_end):
+    def give_range_of_particle(self, number_begin, number_end):
         """Gives out a range of Particles"""
         particle_list = ""
         for particle_number in range(number_begin, number_end+1):
