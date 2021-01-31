@@ -31,7 +31,7 @@ class Particle(object):
         their Creation time of Particle from dataset"""
         particle_attributes = self._dataset[particle_number-1]
         return particle_attributes
-    
+
     def give_range_of_particle(self, number_begin, number_end):
         """Gives out a range of Particles"""
         particle_list = ""

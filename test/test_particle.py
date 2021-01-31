@@ -37,4 +37,3 @@ def test_particle_attributes(particle_number):
             # Check if the correct things are stored
             for key in ('vx', 'vy', 'vz', 't', 'x0', 'y0', 'z0'):
                 assert key in out[i].keys()
-                
