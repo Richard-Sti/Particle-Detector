@@ -1,7 +1,5 @@
 """Unit tests for the detector."""
-import pytest
-
-from simulator import (Particle, Generator)
+from simulator import (Particle, generation)
 
 T = 10
 THETA_MAX = 10
