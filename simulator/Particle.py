@@ -27,7 +27,8 @@ class Particle(object):
         self._dataset = dataset
 
     def give_particle(self, particle_number):
-        """gives out Origin of particle, Vector of particle and their Creation time of Particle from dataset"""
+        """gives out Origin of particle, Vector of particle and
+        their Creation time of Particle from dataset"""
         particle_attributes = self._dataset[particle_number-1]
         return particle_attributes
     
@@ -38,6 +39,3 @@ class Particle(object):
             particle_attributes = self._dataset[particle_number-1]
             particle_list += particle_attributes
         return particle_list
-
-    """def compare_particles(self):
-    def particle_pixel-interaction:"""

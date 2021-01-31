@@ -10,7 +10,7 @@ RATE = 10
 
 @pytest.mark.parametrize(particle_number, [1, 10, 20])
 def test_particle_attributes(particle_number):
-    """Tests whether the particle returns the correct value of a unit in Generator."""
+    """Tests whether particle returns correct value of a unit in Generator."""
     # Setup the generator
     source = PoissonSource(THETA_MAX, rate=RATE)
     events = source.observe(T)
@@ -19,10 +19,11 @@ def test_particle_attributes(particle_number):
     out = particle.give_particle(particle_number)
     assert out == events[particle_number-1]
 
+
 @pytest.mark.parametrize(number_begin, [0, 5, 10])
 @pytest.mark.parametrize(number_end, [5, 10, 20])
 def test_particle_attributes(particle_number):
-    """Tests whether the particles returns the correct value of a unit in Generator."""
+    """Tests whether particles return correct values of Generator."""
     # Setup the generator
     source = PoissonSource(THETA_MAX, rate=RATE)
     events = source.observe(T)
@@ -36,3 +37,4 @@ def test_particle_attributes(particle_number):
             # Check if the correct things are stored
             for key in ('vx', 'vy', 'vz', 't', 'x0', 'y0', 'z0'):
                 assert key in out[i].keys()
+                
