@@ -20,7 +20,7 @@ def test_particle_attributes(particle_number):
 
 
 @pytest.mark.parametrize('number_begin', [0, 5, 10])
-@pytest.mark.parametrize('number_end', [5, 10, 20])
+@pytest.mark.parametrize('number_end', [15, 20, 25])
 def test_particle_attributes(number_begin, number_end):
     """Tests whether particles return correct values of Generator."""
     # Setup the generator
