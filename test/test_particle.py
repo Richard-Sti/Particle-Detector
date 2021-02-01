@@ -1,6 +1,6 @@
 """Unit tests for the particle."""
 import pytest
-from simulator import PoissonSource
+from simulator import Particle
 
 T = 10
 THETA_MAX = 10
@@ -14,7 +14,6 @@ def test_particle_attributes(particle_number):
     source = PoissonSource(THETA_MAX, rate=RATE)
     events = source.observe(T)
     # Setup the Particle
-    from simulator import Particle
     particle = Particle(events)
     out = particle.give_particle(particle_number)
     assert out == events[particle_number-1]
@@ -28,7 +27,6 @@ def test_particle_attributes(number_begin, number_end):
     source = PoissonSource(THETA_MAX, rate=RATE)
     events = source.observe(T)
     # Setup the Particle
-    from simulator import Particle
     particle = Particle(events)
     out = particle.give_range_of_particle(number_begin, number_end)
     N = len(events)
