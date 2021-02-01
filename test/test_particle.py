@@ -1,5 +1,5 @@
 """Unit tests for the detector."""
-from simulator import (Particle, generation)
+from simulator import (PoissonSource, Particle)
 import pytest
 
 T = 10
