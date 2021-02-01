@@ -32,7 +32,7 @@ def test_particle_attributes(number_begin, number_end):
     N = len(events)
 
     if N > number_end:
-        for i in range(number_begin, number_end+1):
+        for i in range(len(out)):
             # Check if the correct things are stored
             for key in ('vx', 'vy', 'vz', 't', 'x0', 'y0', 'z0'):
                 assert key in out[i].keys()

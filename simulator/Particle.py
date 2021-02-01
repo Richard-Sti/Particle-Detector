@@ -10,9 +10,8 @@ class Particle(object):
 
     _dataset = None
 
-    def __init__(self, dataset, momentum_distribution):
+    def __init__(self, dataset):
         self.dataset = dataset
-        self.momentum_distribution = momentum_distribution
 
     @property
     def dataset(self):
@@ -21,7 +20,7 @@ class Particle(object):
     @dataset.setter
     def dataset(self, dataset):
         """checks if input is list that contains dictionaries"""
-        for data_entry_number in range(len(dataset)+1):
+        for data_entry_number in range(len(dataset)):
             if not isinstance(dataset[data_entry_number], dict):
                 raise ValueError("``dataset entries`` must be dictionaries.")
         self._dataset = dataset
@@ -36,6 +35,6 @@ class Particle(object):
         """Gives out a range of Particles"""
         particle_list = ""
         for particle_number in range(number_begin, number_end+1):
-            particle_attributes = self._dataset[particle_number-1]
+            particle_attributes = self._dataset[particle_number]
             particle_list += particle_attributes
         return particle_list
