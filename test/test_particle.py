@@ -1,4 +1,4 @@
-"""Unit tests for the detector."""
+"""Unit tests for the particle."""
 from simulator import (PoissonSource, Particle)
 import pytest
 

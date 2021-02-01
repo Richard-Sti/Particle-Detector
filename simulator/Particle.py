@@ -1,7 +1,6 @@
 class Particle:
     """A particle class. Gives out attributes of particles that were generated
        by the class Generator.
-
         Parameters
         ----------
         dataset: tuple
@@ -33,8 +32,8 @@ class Particle:
 
     def give_range_of_particle(self, number_begin, number_end):
         """Gives out a range of Particles"""
-        particle_list = ""
+        particle_list = list()
         for particle_number in range(number_begin, number_end+1):
             particle_attributes = self._dataset[particle_number]
-            particle_list += particle_attributes
+            particle_list.append(particle_attributes)
         return particle_list
