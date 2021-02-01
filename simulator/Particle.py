@@ -1,4 +1,4 @@
-class Particle(object):
+class Particle:
     """A particle class. Gives out attributes of particles that were generated
        by the class Generator.
 
