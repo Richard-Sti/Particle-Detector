@@ -1,6 +1,6 @@
 """Unit tests for the particle."""
 import pytest
-from simulator import Particle
+from simulator import (PoissonSource, Particle)
 
 T = 10
 THETA_MAX = 10
