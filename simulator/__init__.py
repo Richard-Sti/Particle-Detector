@@ -4,3 +4,4 @@ __author__ = "Richard Stiskalek"
 
 from .generation import (PoissonSource, TruncatedGaussian)
 from .detector import Detector
+from .particle import Particle
