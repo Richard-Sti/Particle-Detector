@@ -15,7 +15,7 @@ def test_particle_attributes(particle_number):
     events = source.observe(T)
     # Setup the Particle
     particle = Particle(events)
-    out = Particle.give_particle(particle_number)
+    out = particle.give_particle(particle_number)
     assert out == events[particle_number-1]
 
 
@@ -28,11 +28,11 @@ def test_particle_attributes(number_begin, number_end):
     events = source.observe(T)
     # Setup the Particle
     particle = Particle(events)
-    out = Particle.give_range_of_particle(number_begin, number_end)
+    out = particle.give_range_of_particle(number_begin, number_end)
     N = len(events)
 
     if N > number_end:
-        for i in range(number_begin, number_end):
+        for i in range(number_begin, number_end+1):
             # Check if the correct things are stored
             for key in ('vx', 'vy', 'vz', 't', 'x0', 'y0', 'z0'):
                 assert key in out[i].keys()
