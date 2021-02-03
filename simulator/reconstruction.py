@@ -1,54 +1,51 @@
+"""Vector reconstructtion script."""
 import numpy
-
-'''
-Vector reconstruction script.
-
-Current functoionality, under assumption, that there is only one particle in
-detector space (z =[30, 50]) at all time:
-    sorts Event by time. Then creates a new list for pairs of events of the highest
-    and lowest detection coordinate z for every particle. Converts the list of
-    dictionarys into a list of numpy arrays. Substracts related event vectors to
-    recreate a flight vector.
-    Conversion into a dictionary of the format of the actual particles flight vectors.
-
-Use: create object reconstructor = Reconstructor()
-of the class to use the reconstructor.reconstruct(detector_output) method.
-
-'''
+from itertools import combinations
+from scipy.special import comb
 
 
 class Reconstructor(object):
+    r"""
+    Particle velocity and speed reconstructor. Calculates the velocity
+    between all possible pairs of detector plates and returns the average
+    velocity.
+    """
 
-    def __init__(self, event_data=None):
-        self.event_data = None
+    def __init__(self):
+        pass
 
-# Methods:
+    @staticmethod
+    def ang_dist(event):
+        phi = numpy.arctan2(event['vy'], event['vx'])
+        theta = numpy.arccos(event['vz'] / event['v'])
+        return {'phi': phi, 'theta': theta}
 
-    def event2vector(self, event):
-        event_vector = numpy.array([])
-        for value in event.values():
-            event_vector = numpy.append(event_vector, value)
-        return event_vector
+    @staticmethod
+    def pair_velocity(pair):
+        """Calculates the velocity between a pair of detector pixels."""
+        ds = numpy.array([pair[1][p] - pair[0][p] for p in ('x', 'y', 'z')])
+        dt = abs(pair[1]['t'] - pair[0]['t'])
+        velocity = ds / dt
+        return velocity
 
-    def vector2event(self, vector):
-        event = {'xpixel': vector[0], 'ypixel': vector[1], 'zpixel': vector[2], 't': vector[3]}
-        return event
-
-    def vector_reconstruct(self, vector1, vector2):
-        vector_recon = vector2 - vector1
-        vector_reprod = {'vx': 0, 'vy': 0, 'vz': 0, 't': 0, '|v|': 0}
-        vector_reprod['vx'] = vector_recon[0]/vector_recon[3]
-        vector_reprod['vy'] = vector_recon[1]/vector_recon[3]
-        vector_reprod['vz'] = vector_recon[2]/vector_recon[3]
-        vector_reprod['t'] = vector1[3] - vector1[2]/vector_recon[2]*vector_recon[3]
-        vector_reprod['|v|'] = numpy.sqrt(vector_reprod['vx']**2 + vector_reprod['vy']**2 + vector_reprod['vz']**2)
-        return vector_reprod
-
-    def reconstruct(self, data_list):
-        reconstructed_data = []
-        for list in data_list:
-            detections = len(list)
-            first_det = self.event2vector(list[0])
-            final_det = self.event2vector(list[detections - 1])
-            reconstructed_data.append(self.vector_reconstruct(first_det, final_det))
-        return reconstructed_data
+    def reconstruct(self, data):
+        """
+        Reconstructs the averaged velocity and speed of events.
+        """
+        out = [None] * len(data)
+        # Get the speed and velocities
+        for i, event in enumerate(data):
+            stats = {}
+            v = numpy.empty(shape=(comb(len(event), 2, exact=True), 3))
+            for j, pair in enumerate(combinations(event, 2)):
+                v[j, :] = self.pair_velocity(pair)
+            # Append the speed
+            stats.update({'v': numpy.linalg.norm(v, axis=1).mean()})
+            # Calculate the mean velocity
+            v = numpy.mean(v, axis=0)
+            stats.update({p: v[k] for k, p in enumerate(['vx', 'vy', 'vz'])})
+            out[i] = stats
+        # Get the angular distribution
+        for event in out:
+            event.update(self.ang_dist(event))
+        return out
